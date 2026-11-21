@@ -822,6 +822,11 @@ guncelle();
 kacmayaBasla();
 addEventListener('resize', kac);
 bildir('Linke tıkladı, soruyu görüyor 👀', 'Sayfayı açtı', 'eyes', 3);
+ document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden" && cevap.hidden) {
+    bildir('Cevaplamadan çıktı 😅', 'Cevaplamadan çıktı', 'warning', 4);
+  }
+});
 </script>
 </body>
 </html>
