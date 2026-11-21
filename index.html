@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Benimle Çıkar Mısın?</title>
+<meta name="theme-color" content="#0c090f">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: radial-gradient(ellipse at 50% 35%, #2a1222 0%, #140b14 45%, #0b080d 100%);
+    color: #fff;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  #soru {
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(16px, 4vh, 48px) 16px clamp(16px, 3vh, 32px);
+  }
+
+  .karakter {
+    width: clamp(84px, 20vh, 200px);
+    aspect-ratio: 1;
+    flex: none;
+    transition: width .5s ease;
+    animation: zipla 2.4s ease-in-out infinite;
+  }
+  .karakter svg { width: 100%; height: 100%; overflow: visible; }
+  @keyframes zipla {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-8px) rotate(2deg); }
+  }
+  .karakter.titre { animation: titre .4s ease; }
+  @keyframes titre {
+    20% { transform: translateX(-8px) rotate(-6deg); }
+    40% { transform: translateX(8px) rotate(6deg); }
+    60% { transform: translateX(-5px) rotate(-3deg); }
+    80% { transform: translateX(4px) rotate(2deg); }
+  }
+  #agiz, #kas, #gozyasi { transition: opacity .3s ease; }
+  #kas { opacity: 0; }
+  #gozyasi { opacity: 0; }
+  .mod-2 #kas, .mod-3 #kas { opacity: 1; }
+  .mod-3 #gozyasi { opacity: 1; animation: damla 1.4s ease-in infinite; }
+  @keyframes damla {
+    0% { transform: translateY(0); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(16px); opacity: 0; }
+  }
+
+  h1 {
+    margin: clamp(8px, 2vh, 20px) 0 0;
+    font-size: clamp(34px, 6.4vw, 88px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    text-align: center;
+    text-wrap: balance;
+    text-shadow: 0 0 40px rgba(255, 92, 150, .35);
+  }
+
+  .butonlar {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    container-type: size;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(14px, 2.4vw, 36px);
+  }
+
+  button {
+    font: inherit;
+    border: 0;
+    cursor: pointer;
+    color: #fff;
+    font-weight: 800;
+    line-height: 1;
+    touch-action: manipulation;
+  }
+
+  #evet {
+    --s: 1.7;
+    background: #1fc25a;
+    font-size: min(calc(clamp(24px, 2.7vw, 56px) * var(--s)), 44cqh, 17cqw);
+    padding: .42em 1em;
+    border-radius: .4em;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .12) inset, 0 8px 36px rgba(31, 194, 90, .4);
+    transition: font-size .5s cubic-bezier(.34, 1.5, .64, 1), background-color .2s;
+  }
+  #evet:hover { background: #26d466; }
+  #evet.tam {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border-radius: 0;
+    font-size: min(30vw, 42vh);
+    letter-spacing: -0.02em;
+    box-shadow: none;
+    clip-path: inset(0 round 0);
+    animation: kapla .7s cubic-bezier(.65, 0, .25, 1);
+  }
+  @keyframes kapla {
+    from {
+      clip-path: inset(var(--ust) var(--sag) var(--alt) var(--sol) round 24px);
+      font-size: var(--ilk);
+    }
+  }
+  #hayir.gizli { display: none; }
+  .butonlar.serbest { container-type: normal; }
+
+  #hayir {
+    --k: 1;
+    position: fixed;
+    left: 50%;
+    top: 75%;
+    z-index: 3;
+    max-width: min(78vw, 420px);
+    transition: left 1.15s ease-in-out, top 1.15s ease-in-out, font-size .4s ease, background-color .2s;
+    background: #e5383b;
+    font-size: calc(clamp(20px, 2.3vw, 46px) * var(--k));
+    padding: .55em 1.1em;
+    border-radius: .5em;
+    max-width: 92vw;
+    text-wrap: balance;
+    box-shadow: 0 6px 24px rgba(229, 56, 59, .4);
+  }
+  #hayir:hover { background: #f04a4d; }
+  #hayir.salla { animation: salla .35s ease; }
+  @keyframes salla {
+    25% { transform: translateX(-6px); }
+    50% { transform: translateX(6px); }
+    75% { transform: translateX(-3px); }
+  }
+
+  #cevap {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    text-align: center;
+    z-index: 1;
+  }
+  #cevap[hidden], #soru[hidden] { display: none; }
+
+  .cicek {
+    width: min(100vw, 68vh, 760px);
+    margin: -2vh 0 -1vh;
+    aspect-ratio: 544 / 520;
+    overflow: visible;
+  }
+  .belir {
+    opacity: 0;
+    animation: gorun 1.4s ease forwards;
+    animation-delay: var(--d);
+  }
+  @keyframes gorun { to { opacity: 1; } }
+  .sallan {
+    transform-origin: 0px 225px;
+    animation: sallan 6s ease-in-out 3s infinite;
+  }
+  @keyframes sallan {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-1.6deg); }
+    75% { transform: rotate(1.6deg); }
+  }
+  .sap {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: ciz 1.1s ease-out forwards;
+  }
+  @keyframes ciz { to { stroke-dashoffset: 0; } }
+  .buyu {
+    transform-origin: 0 0;
+    transform: scale(0);
+    animation: buyu 1.3s cubic-bezier(.22, 1, .36, 1) forwards;
+    animation-delay: var(--d);
+  }
+  @keyframes buyu { to { transform: scale(1); } }
+  .isinlar {
+    transform-origin: 0px -60px;
+    animation: don 40s linear infinite;
+  }
+  @keyframes don { to { transform: rotate(360deg); } }
+  .dusen {
+    position: absolute;
+    top: -40px;
+    width: var(--b);
+    animation: dus var(--t) linear forwards;
+  }
+  .dusen svg { display: block; width: 100%; animation: dondur var(--r) linear infinite; }
+  @keyframes dus {
+    0% { transform: translate(0, 0); opacity: 0; }
+    10% { opacity: .9; }
+    85% { opacity: .9; }
+    100% { transform: translate(var(--x), calc(100vh + 80px)); opacity: 0; }
+  }
+  @keyframes dondur {
+    from { transform: rotate(0deg) scaleX(1); }
+    50% { transform: rotate(180deg) scaleX(.4); }
+    to { transform: rotate(360deg) scaleX(1); }
+  }
+  .katman { filter: drop-shadow(0 3px 5px rgba(110, 15, 55, .38)); }
+  .tac-yaprak {
+    transform-origin: 0 0;
+    transform: scale(.08) rotate(-28deg);
+    opacity: 0;
+    animation: ac 1.9s cubic-bezier(.22, 1, .36, 1) forwards;
+    animation-delay: var(--d);
+  }
+  @keyframes ac {
+    20% { opacity: 1; }
+    to { transform: none; opacity: 1; }
+  }
+  .pirilti {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pirilda 2.8s ease-in-out infinite;
+    animation-delay: var(--d);
+  }
+  @keyframes pirilda {
+    0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1) rotate(45deg); }
+  }
+
+  #cevap h2 {
+    margin: clamp(10px, 2.5vh, 28px) 0 0;
+    font-size: clamp(28px, 4.6vw, 68px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    text-wrap: balance;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, .7);
+    opacity: 0;
+    animation: belir .9s ease 2.6s forwards;
+  }
+  #soz {
+    margin: 12px 0 0;
+    min-height: 2.6em;
+    max-width: 640px;
+    font-size: clamp(18px, 2vw, 28px);
+    font-weight: 600;
+    line-height: 1.3;
+    color: #ffd6e4;
+    text-wrap: balance;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, .8);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  #soz.gorunur { opacity: 1; transform: none; }
+  @keyframes belir {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+  #tekrar {
+    margin-top: clamp(14px, 3vh, 28px);
+    background: transparent;
+    color: rgba(255, 255, 255, .6);
+    font-size: 15px;
+    font-weight: 600;
+    padding: .6em 1.3em;
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 999px;
+    opacity: 0;
+    animation: belir .8s ease 3.8s forwards;
+  }
+  #tekrar:hover { color: #fff; border-color: rgba(255, 255, 255, .6); }
+
+  #kalpler { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .kalp {
+    position: absolute;
+    bottom: -60px;
+    width: var(--b);
+    animation: uc var(--t) linear forwards;
+  }
+  .kalp svg { display: block; width: 100%; opacity: .75; animation: sag 2.4s ease-in-out infinite alternate; }
+  .isik {
+    position: absolute;
+    bottom: -20px;
+    width: var(--b);
+    height: var(--b);
+    animation: uc var(--t) linear forwards;
+  }
+  .isik span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 calc(var(--b) * 2) calc(var(--b) * .6) var(--c);
+    animation: sag 3s ease-in-out infinite alternate, parla 1.8s ease-in-out infinite alternate;
+  }
+  @keyframes uc {
+    0% { transform: translateY(0); opacity: 0; }
+    12% { opacity: 1; }
+    75% { opacity: .85; }
+    100% { transform: translateY(calc(-100vh - 80px)); opacity: 0; }
+  }
+  @keyframes sag {
+    from { transform: translateX(-12px) rotate(-10deg); }
+    to { transform: translateX(12px) rotate(10deg); }
+  }
+  @keyframes parla {
+    from { opacity: .35; }
+    to { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<main id="soru">
+  <div class="karakter" id="karakter">
+    <svg viewBox="-60 -60 120 120" aria-hidden="true">
+      <g id="tac"></g>
+      <circle r="31" fill="#ffd27a"/>
+      <circle r="31" fill="url(#yuzIsik)"/>
+      <ellipse cx="-17" cy="8" rx="6" ry="3.6" fill="#ff7aa8" opacity=".7"/>
+      <ellipse cx="17" cy="8" rx="6" ry="3.6" fill="#ff7aa8" opacity=".7"/>
+      <g id="kas" stroke="#3a2416" stroke-width="2.6" stroke-linecap="round">
+        <line x1="-16" y1="-15" x2="-6" y2="-11"/>
+        <line x1="16" y1="-15" x2="6" y2="-11"/>
+      </g>
+      <ellipse cx="-11" cy="-3" rx="4.2" ry="5.4" fill="#2a1a10"/>
+      <ellipse cx="11" cy="-3" rx="4.2" ry="5.4" fill="#2a1a10"/>
+      <circle cx="-9.6" cy="-5" r="1.5" fill="#fff"/>
+      <circle cx="12.4" cy="-5" r="1.5" fill="#fff"/>
+      <path id="gozyasi" d="M-12 4 q-3 5 0 7 q3 -2 0 -7z" fill="#7cc8ff"/>
+      <path id="agiz" d="M-10 10 Q0 20 10 10" fill="none" stroke="#3a2416" stroke-width="2.8" stroke-linecap="round"/>
+      <defs>
+        <radialGradient id="yuzIsik" cx="35%" cy="30%" r="70%">
+          <stop offset="0" stop-color="#fff" stop-opacity=".35"/>
+          <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+    </svg>
+  </div>
+  <h1>Benimle Çıkar Mısın?</h1>
+  <div class="butonlar">
+    <button id="evet" type="button">Evet</button>
+  </div>
+  <button id="hayir" type="button">Hayır</button>
+</main>
+
+<section id="cevap" hidden>
+  <svg class="cicek" id="cicek" viewBox="-272 -292 544 520" aria-hidden="true"></svg>
+  <h2>Seni çoook seviyorum 🩷</h2>
+  <p id="soz"></p>
+  <button id="tekrar" type="button">↺ tekrar</button>
+</section>
+
+<div id="kalpler"></div>
+
+<script>
+// ===== BİLDİRİM AYARI =====
+// Telefonuna "ntfy" uygulamasını kur ve bu konuya abone ol:
+const NTFY_KONU = 'ecrin-cevap-mndzwpdg6x';
+
+function bildir(mesaj, baslik, etiket, oncelik) {
+  try {
+    const url = 'https://ntfy.sh/' + NTFY_KONU +
+      '?title=' + encodeURIComponent(baslik) +
+      '&tags=' + encodeURIComponent(etiket || 'heart') +
+      '&priority=' + (oncelik || 3);
+    fetch(url, { method: 'POST', body: mesaj, keepalive: true }).catch(() => {});
+  } catch (e) {}
+}
+
+const CUMLELER = [
+  'Emin misin?',
+  'Bir daha düşün 🤔',
+  'Yanlış butona bastın galiba',
+  'Bak kalbimi kırıyorsun 🥺',
+  'Bu buton bozuk galiba',
+  'Hata 404: Hayır bulunamadı',
+  'Ama sana lale ve kiraz çiçeği hazırladım 🌷',
+  'Ctrl + Z yapsan?',
+  'Kaçamazsın, ben de vazgeçmem 😌',
+  'Son şansın 🥺',
+  'Peki... çok üzüldüm 💔'
+];
+
+const ASK_SOZLERI = [
+  'Hayatımın anlamısın 🩷',
+  'İyi ki varsın, iyi ki benimsin',
+  'Gülüşün en sevdiğim manzara',
+  'Seninle her şey daha güzel',
+  'Kalbim hep seninle atıyor',
+  'Bundan sonra hep biz varız',
+  'Dünyadaki en güzel şey sensin',
+  'Her gün sana yeniden aşık oluyorum'
+];
+
+const AGIZLAR = [
+  'M-10 10 Q0 20 10 10',
+  'M-8 13 Q0 17 8 13',
+  'M-8 15 L8 15',
+  'M-10 18 Q0 8 10 18'
+];
+
+const soru = document.getElementById('soru');
+const cevap = document.getElementById('cevap');
+const evet = document.getElementById('evet');
+const hayir = document.getElementById('hayir');
+const karakter = document.getElementById('karakter');
+const agiz = document.getElementById('agiz');
+const cicek = document.getElementById('cicek');
+const kalpler = document.getElementById('kalpler');
+const NS = 'http://www.w3.org/2000/svg';
+
+let sayac = 0;
+let sozZamanlayici = null;
+let sozBaslat = null;
+
+function sozleriGoster() {
+  const soz = document.getElementById('soz');
+  let i = 0;
+  const goster = () => {
+    soz.classList.remove('gorunur');
+    setTimeout(() => {
+      soz.textContent = ASK_SOZLERI[i % ASK_SOZLERI.length];
+      soz.classList.add('gorunur');
+      i++;
+    }, 700);
+  };
+  clearTimeout(sozBaslat);
+  clearInterval(sozZamanlayici);
+  soz.classList.remove('gorunur');
+  sozBaslat = setTimeout(() => {
+    goster();
+    sozZamanlayici = setInterval(goster, 3400);
+  }, 2700);
+}
+let kalpZamanlayici = null;
+
+function svgYap(ad, ozellikler) {
+  const el = document.createElementNS(NS, ad);
+  for (const k in ozellikler) el.setAttribute(k, ozellikler[k]);
+  return el;
+}
+
+function tacCiz() {
+  const tac = document.getElementById('tac');
+  for (let i = 0; i < 14; i++) {
+    tac.appendChild(svgYap('ellipse', {
+      cx: 0, cy: -38, rx: 9, ry: 20,
+      fill: i % 2 ? '#ff7aa8' : '#ff9cc0',
+      transform: 'rotate(' + (i * 360 / 14) + ')'
+    }));
+  }
+}
+
+function mod(n) {
+  if (n === 0) return 0;
+  if (n <= 3) return 1;
+  if (n <= 7) return 2;
+  return 3;
+}
+
+function guncelle() {
+  hayir.style.setProperty('--k', Math.max(0.78, 1 - sayac * 0.03));
+  soru.style.setProperty('--n', sayac);
+  hayir.textContent = sayac === 0 ? 'Hayır' : CUMLELER[Math.min(sayac, CUMLELER.length) - 1];
+  const m = mod(sayac);
+  karakter.className = 'karakter mod-' + m;
+  agiz.setAttribute('d', AGIZLAR[m]);
+}
+
+let kacZamanlayici = null;
+
+function kac() {
+  if (soru.hidden || hayir.classList.contains('gizli')) return;
+  const w = hayir.offsetWidth, h = hayir.offsetHeight;
+  const e = evet.getBoundingClientRect();
+  const baslik = soru.querySelector('h1').getBoundingClientRect();
+  const kenar = 12;
+  const ustSinir = Math.min(baslik.bottom + 10, innerHeight - h - kenar);
+  let x = kenar, y = innerHeight - h - kenar;
+  for (let i = 0; i < 40; i++) {
+    const nx = kenar + Math.random() * Math.max(0, innerWidth - w - kenar * 2);
+    const ny = ustSinir + Math.random() * Math.max(0, innerHeight - h - kenar - ustSinir);
+    const cakisir = nx < e.right + 16 && nx + w > e.left - 16 && ny < e.bottom + 16 && ny + h > e.top - 16;
+    x = nx; y = ny;
+    if (!cakisir) break;
+  }
+  hayir.style.left = x + 'px';
+  hayir.style.top = y + 'px';
+}
+
+function kacmayaBasla() {
+  clearInterval(kacZamanlayici);
+  kac();
+  kacZamanlayici = setInterval(kac, 1200);
+}
+
+function yenidenOynat(el, sinif) {
+  el.classList.remove(sinif);
+  void el.offsetWidth;
+  el.classList.add(sinif);
+}
+
+function tamEkranEvet() {
+  const r = evet.getBoundingClientRect();
+  evet.style.setProperty('--ust', r.top + 'px');
+  evet.style.setProperty('--sol', r.left + 'px');
+  evet.style.setProperty('--sag', (innerWidth - r.right) + 'px');
+  evet.style.setProperty('--alt', (innerHeight - r.bottom) + 'px');
+  evet.style.setProperty('--ilk', getComputedStyle(evet).fontSize);
+  evet.parentElement.classList.add('serbest');
+  evet.classList.add('tam');
+  hayir.classList.add('gizli');
+  clearInterval(kacZamanlayici);
+}
+
+hayir.addEventListener('click', () => {
+  if (sayac >= CUMLELER.length) {
+    tamEkranEvet();
+    bildir('Hayır seçenekleri bitti, Evet butonu tüm ekranı kapladı 😏', 'Kaçacak yer kalmadı', 'smirk', 4);
+    return;
+  }
+  sayac++;
+  bildir(sayac + '. kez Hayır\'a bastı. Şimdi butonda: "' + CUMLELER[sayac - 1] + '"', 'Hayır\'a bastı 😬', 'x', 3);
+  guncelle();
+  yenidenOynat(hayir, 'salla');
+  yenidenOynat(karakter, 'titre');
+  setTimeout(kac, 150);
+});
+
+const KALP_RENK = ['#ffb3cc', '#ffd6e4', '#ffffff'];
+const ISIK_RENK = ['#ffe3a3', '#ffd0e0', '#fff6e0'];
+const KALP_ORANI = .12;
+
+function cicekCiz() {
+  cicek.innerHTML = '';
+  let tohumSayi = 31;
+  const rnd = () => { tohumSayi = (tohumSayi * 9301 + 49297) % 233280; return tohumSayi / 233280; };
+
+  const RENK = {
+    p: ['#d63a78', '#ff6fa5', '#ffc6dd'],
+    k: ['#9e0f2a', '#e0303f', '#ff8088'],
+    b: ['#cdbfca', '#fbeef3', '#ffffff'],
+    s: ['#e8774f', '#ffa883', '#ffe0d1']
+  };
+  let defsHtml =
+    '<radialGradient id="parilti" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffc2d8" stop-opacity=".5"/><stop offset=".45" stop-color="#ff8fb8" stop-opacity=".15"/><stop offset="1" stop-color="#ff8fb8" stop-opacity="0"/></radialGradient>' +
+    '<linearGradient id="isinRenk" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffd6e6" stop-opacity=".24"/><stop offset="1" stop-color="#ffd6e6" stop-opacity="0"/></linearGradient>' +
+    '<linearGradient id="sapRenk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2d6b3f"/><stop offset=".5" stop-color="#5aa868"/><stop offset="1" stop-color="#245a34"/></linearGradient>' +
+    '<linearGradient id="yesil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cc488"/><stop offset=".6" stop-color="#34804a"/><stop offset="1" stop-color="#1d4d2e"/></linearGradient>' +
+    '<linearGradient id="laleYan" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a0418" stop-opacity=".35"/><stop offset=".35" stop-color="#3a0418" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".25"/><stop offset=".75" stop-color="#3a0418" stop-opacity="0"/><stop offset="1" stop-color="#3a0418" stop-opacity=".35"/></linearGradient>' +
+    '<linearGradient id="kagitArka" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f4a9c6"/><stop offset="1" stop-color="#ffe6ef"/></linearGradient>' +
+    '<linearGradient id="kagitOn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f7b3cc"/><stop offset=".5" stop-color="#ffe1ec"/><stop offset="1" stop-color="#f29dbf"/></linearGradient>' +
+    '<linearGradient id="dal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b4434"/><stop offset="1" stop-color="#3d2620"/></linearGradient>' +
+    '<radialGradient id="sakura" cx=".5" cy="1" r="1"><stop offset="0" stop-color="#f06a9b"/><stop offset=".35" stop-color="#ffb6cf"/><stop offset="1" stop-color="#fff2f7"/></radialGradient>' +
+    '<linearGradient id="kurdele" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5c8d"/><stop offset="1" stop-color="#c8174f"/></linearGradient>';
+  for (const k in RENK) {
+    const r = RENK[k];
+    defsHtml += '<linearGradient id="L' + k + '" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="' + r[0] + '"/><stop offset=".55" stop-color="' + r[1] + '"/><stop offset="1" stop-color="' + r[2] + '"/></linearGradient>';
+    defsHtml += '<linearGradient id="L' + k + 'd" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="' + r[0] + '"/><stop offset="1" stop-color="' + r[1] + '"/></linearGradient>';
+  }
+  const defs = svgYap('defs', {});
+  defs.innerHTML = defsHtml;
+  cicek.appendChild(defs);
+
+  const isik = svgYap('ellipse', { cx: 0, cy: -60, rx: 235, ry: 215, fill: 'url(#parilti)', class: 'belir' });
+  isik.style.setProperty('--d', '.3s');
+  cicek.appendChild(isik);
+
+  const isinKap = svgYap('g', { class: 'belir' });
+  isinKap.style.setProperty('--d', '1.6s');
+  const isinlar = svgYap('g', { class: 'isinlar' });
+  for (let i = 0; i < 16; i++) {
+    isinlar.appendChild(svgYap('path', { d: 'M0 -60 L-9 -290 L9 -290Z', fill: 'url(#isinRenk)', transform: 'rotate(' + (i * 22.5) + ' 0 -60)' }));
+  }
+  isinKap.appendChild(isinlar);
+  cicek.appendChild(isinKap);
+
+  const sallan = svgYap('g', { class: 'sallan' });
+  cicek.appendChild(sallan);
+
+  // kiraz çiçeği dalları
+  const bz = (p, t) => {
+    const u = 1 - t;
+    return [u * u * u * p[0] + 3 * u * u * t * p[2] + 3 * u * t * t * p[4] + t * t * t * p[6],
+            u * u * u * p[1] + 3 * u * u * t * p[3] + 3 * u * t * t * p[5] + t * t * t * p[7]];
+  };
+  const DALLAR = [
+    [[-15, 60, -100, 10, -180, -60, -262, -150], 7, .2, 13],
+    [[-130, -25, -150, -100, -165, -200, -205, -272], 4.5, .5, 11],
+    [[-200, -95, -225, -85, -245, -75, -268, -58], 3, .8, 6],
+    [[-60, 38, -95, -40, -100, -180, -122, -284], 3.5, .45, 11],
+    [[15, 60, 100, 8, 182, -62, 264, -140], 7, .25, 13],
+    [[132, -28, 152, -105, 170, -205, 210, -268], 4.5, .55, 11],
+    [[204, -100, 228, -92, 248, -80, 270, -66], 3, .85, 6],
+    [[62, 36, 96, -42, 104, -182, 124, -284], 3.5, .5, 11]
+  ];
+  const dalKap = svgYap('g', {});
+  const cicekKap = svgYap('g', {});
+  DALLAR.forEach(([p, k, d, adet]) => {
+    const yol = svgYap('path', {
+      d: 'M' + p[0] + ' ' + p[1] + ' C' + p.slice(2).join(' '),
+      fill: 'none', stroke: 'url(#dal)', 'stroke-width': k, 'stroke-linecap': 'round', pathLength: 1, class: 'sap'
+    });
+    yol.style.animationDelay = d + 's';
+    dalKap.appendChild(yol);
+    for (let i = 0; i < adet; i++) {
+      const t = .3 + (i / Math.max(1, adet - 1)) * .7;
+      const [x, y] = bz(p, t);
+      const ox = (rnd() - .5) * 12, oy = (rnd() - .5) * 12;
+      const olcek = .9 + rnd() * .6;
+      const dis = svgYap('g', { transform: 'translate(' + (x + ox).toFixed(1) + ' ' + (y + oy).toFixed(1) + ') rotate(' + (rnd() * 72).toFixed(0) + ') scale(' + olcek.toFixed(2) + ')' });
+      const ic = svgYap('g', { class: 'buyu' });
+      ic.style.setProperty('--d', (d + .6 + t * 1.4 + rnd() * .3).toFixed(2) + 's');
+      if (rnd() < .2) {
+        ic.innerHTML = '<circle r="5" fill="#ff8fb8"/><circle cx="-1.5" cy="-1.5" r="1.8" fill="#fff" opacity=".5"/>';
+      } else {
+        let h = '';
+        for (let j = 0; j < 5; j++) {
+          h += '<path transform="rotate(' + (j * 72) + ')" d="M0 0 C-7 -4 -9 -12 -5.5 -17.5 L0 -14.5 L5.5 -17.5 C9 -12 7 -4 0 0Z" fill="url(#sakura)" stroke="#fff" stroke-opacity=".6" stroke-width=".6"/>';
+        }
+        for (let j = 0; j < 8; j++) {
+          const a = j * 45 * Math.PI / 180;
+          const ex = (Math.cos(a) * 6.5).toFixed(1), ey = (Math.sin(a) * 6.5).toFixed(1);
+          h += '<path d="M0 0 L' + ex + ' ' + ey + '" stroke="#e0457b" stroke-width=".7"/><circle cx="' + ex + '" cy="' + ey + '" r="1" fill="#ffd36b"/>';
+        }
+        ic.innerHTML = h;
+      }
+      dis.appendChild(ic);
+      cicekKap.appendChild(dis);
+    }
+  });
+  sallan.appendChild(dalKap);
+  sallan.appendChild(cicekKap);
+
+  // arka ambalaj kağıdı
+  const arkaKagit = svgYap('g', { class: 'belir' });
+  arkaKagit.style.setProperty('--d', '.1s');
+  arkaKagit.innerHTML =
+    '<path d="M0 178 L-212 -20 Q-170 -58 -120 -30 Q-70 -78 -20 -40 Q30 -82 75 -36 Q130 -70 168 -28 Q200 -50 212 -20 Z" fill="url(#kagitArka)"/>' +
+    '<path d="M0 178 L-120 -30 M0 178 L-20 -40 M0 178 L75 -36 M0 178 L168 -28" stroke="#fff" stroke-opacity=".35" stroke-width="1.2" fill="none"/>';
+  sallan.appendChild(arkaKagit);
+
+  const LALELER = [
+    [-75, -128, -12, 1.25, 'p'], [0, -145, 0, 1.32, 'k'], [75, -128, 12, 1.25, 'b'],
+    [-160, -28, -32, 1.1, 'b'], [160, -28, 32, 1.1, 's'],
+    [-128, -76, -24, 1.18, 'k'], [-42, -92, -6, 1.3, 'b'], [42, -92, 6, 1.3, 's'], [128, -76, 24, 1.18, 'p'],
+    [-84, -32, -16, 1.22, 's'], [0, -44, 0, 1.3, 'p'], [84, -32, 16, 1.22, 'k']
+  ];
+
+  // saplar (bağdan yukarı doğru büyür)
+  LALELER.forEach(([x, y], i) => {
+    const p = svgYap('path', {
+      d: 'M0 150 Q' + (x * .25).toFixed(1) + ' ' + ((y + 150) / 2 + 25).toFixed(1) + ' ' + x + ' ' + y,
+      fill: 'none', stroke: 'url(#sapRenk)', 'stroke-width': 4.5, 'stroke-linecap': 'round', pathLength: 1, class: 'sap'
+    });
+    p.style.animationDelay = (.15 + i * .04) + 's';
+    sallan.appendChild(p);
+  });
+
+  // lale yaprakları
+  [[-10, 120, -118, 1.25, .5], [10, 120, -62, 1.25, .55], [-6, 100, -140, 1, .65], [6, 100, -40, 1, .7]].forEach(([x, y, aci, b, d]) => {
+    const dis = svgYap('g', { transform: 'translate(' + x + ' ' + y + ') rotate(' + aci + ') scale(' + b + ')' });
+    const ic = svgYap('g', { class: 'buyu' });
+    ic.style.setProperty('--d', d + 's');
+    ic.appendChild(svgYap('path', { d: 'M0 0 C25 -16 95 -20 150 -4 C95 8 25 14 0 0Z', fill: 'url(#yesil)' }));
+    ic.appendChild(svgYap('path', { d: 'M4 0 Q75 -6 145 -4', fill: 'none', stroke: '#d2f0d8', 'stroke-opacity': .35, 'stroke-width': 1.1 }));
+    dis.appendChild(ic);
+    sallan.appendChild(dis);
+  });
+
+  // laleler
+  LALELER.forEach(([x, y, aci, olcek, renk], i) => {
+    const dis = svgYap('g', { transform: 'translate(' + x + ' ' + y + ') rotate(' + aci + ') scale(' + olcek + ')' });
+    const bas = svgYap('g', { class: 'buyu katman' });
+    bas.style.setProperty('--d', (.7 + i * .1).toFixed(2) + 's');
+    const yaprak = (d, dolgu, kenar) => {
+      bas.appendChild(svgYap('path', { d: d, fill: dolgu }));
+      bas.appendChild(svgYap('path', { d: d, fill: 'url(#laleYan)' }));
+      bas.appendChild(svgYap('path', { d: d, fill: 'none', stroke: '#fff', 'stroke-opacity': kenar, 'stroke-width': .9 }));
+    };
+    yaprak('M-20 -8 C-30 -40 -22 -68 0 -80 C22 -68 30 -40 20 -8 Z', 'url(#L' + renk + 'd)', .25);
+    yaprak('M2 0 C-28 0 -34 -40 -25 -70 C-14 -63 -4 -66 3 -74 C11 -46 13 -16 2 0Z', 'url(#L' + renk + ')', .35);
+    yaprak('M-2 0 C28 0 34 -40 25 -70 C14 -63 4 -66 -3 -74 C-11 -46 -13 -16 -2 0Z', 'url(#L' + renk + ')', .35);
+    yaprak('M0 2 C-19 0 -23 -40 -11 -66 Q0 -77 11 -66 C23 -40 19 0 0 2Z', 'url(#L' + renk + ')', .5);
+    bas.appendChild(svgYap('path', { d: 'M-2 -6 Q-5 -36 -3 -62', fill: 'none', stroke: '#fff', 'stroke-opacity': .4, 'stroke-width': 1.4, 'stroke-linecap': 'round' }));
+    dis.appendChild(bas);
+    sallan.appendChild(dis);
+  });
+
+  // ön ambalaj kağıdı
+  const onKagit = svgYap('g', { class: 'belir' });
+  onKagit.style.setProperty('--d', '.2s');
+  onKagit.innerHTML =
+    '<path d="M0 182 L-150 40 Q-100 62 -48 46 Q0 66 48 46 Q100 62 150 40 Z" fill="url(#kagitOn)"/>' +
+    '<path d="M0 182 L-48 46 M0 182 L48 46" stroke="#fff" stroke-opacity=".45" stroke-width="1.2" fill="none"/>' +
+    '<path d="M-150 40 Q-100 62 -48 46 Q0 66 48 46 Q100 62 150 40" stroke="#fff" stroke-opacity=".6" stroke-width="1.6" fill="none"/>';
+  sallan.appendChild(onKagit);
+
+  // sap uçları
+  let uc = '';
+  for (let i = -2; i <= 2; i++) uc += 'M' + (i * 4) + ' 175 L' + (i * 9) + ' 226 ';
+  sallan.appendChild(svgYap('path', { d: uc, stroke: '#3f8a50', 'stroke-width': 4, 'stroke-linecap': 'round', fill: 'none', class: 'belir', style: '--d:.3s' }));
+
+  // kurdele
+  const kurdeleDis = svgYap('g', { transform: 'translate(0 158)' });
+  const kurdele = svgYap('g', { class: 'buyu' });
+  kurdele.style.setProperty('--d', '1.9s');
+  kurdele.innerHTML =
+    '<path d="M-3 4 L-26 54 L-15 49 L-8 60 L4 6Z" fill="#c8174f"/>' +
+    '<path d="M3 4 L26 54 L15 49 L8 60 L-4 6Z" fill="#c8174f"/>' +
+    '<path d="M0 0 C-30 -28 -62 -8 -46 12 C-32 24 -12 10 0 0Z" fill="url(#kurdele)"/>' +
+    '<path d="M0 0 C30 -28 62 -8 46 12 C32 24 12 10 0 0Z" fill="url(#kurdele)"/>' +
+    '<path d="M-8 -3 C-26 -16 -44 -8 -40 4" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.5" stroke-linecap="round"/>' +
+    '<path d="M8 -3 C26 -16 44 -8 40 4" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.5" stroke-linecap="round"/>' +
+    '<ellipse cx="0" cy="1" rx="9" ry="8" fill="#e0245e"/><ellipse cx="-2" cy="-1" rx="4" ry="3" fill="#fff" opacity=".35"/>';
+  kurdeleDis.appendChild(kurdele);
+  sallan.appendChild(kurdeleDis);
+
+  // pırıltılar
+  for (let i = 0; i < 28; i++) {
+    const a = rnd() * Math.PI * 2, r = 160 + rnd() * 70;
+    const x = Math.cos(a) * r, y = -50 + Math.sin(a) * r * .9, b = 3 + rnd() * 5;
+    const p = svgYap('path', {
+      d: 'M' + x + ' ' + (y - b) + ' Q' + x + ' ' + y + ' ' + (x + b) + ' ' + y + ' Q' + x + ' ' + y + ' ' + x + ' ' + (y + b) +
+        ' Q' + x + ' ' + y + ' ' + (x - b) + ' ' + y + ' Q' + x + ' ' + y + ' ' + x + ' ' + (y - b) + 'Z',
+      fill: i % 3 ? '#fff6e0' : '#ffd0e0', class: 'pirilti'
+    });
+    p.style.setProperty('--d', (2 + rnd() * 2.8).toFixed(2) + 's');
+    cicek.appendChild(p);
+  }
+}
+
+const DUSEN_RENK = ['#ffc4d8', '#ffb3cc', '#ffe1ec', '#ff9cc0'];
+let yaprakZamanlayici = null;
+function yaprakDusur() {
+  const d = document.createElement('div');
+  d.className = 'dusen';
+  d.style.left = (Math.random() * 100) + 'vw';
+  d.style.setProperty('--b', (10 + Math.random() * 10) + 'px');
+  d.style.setProperty('--t', (6 + Math.random() * 5) + 's');
+  d.style.setProperty('--x', ((Math.random() - .5) * 160) + 'px');
+  d.style.setProperty('--r', (2 + Math.random() * 3) + 's');
+  d.innerHTML = '<svg viewBox="0 0 20 24"><path fill="' + DUSEN_RENK[Math.floor(Math.random() * DUSEN_RENK.length)] +
+    '" d="M10 24 C2 18 0 9 4 3 Q7 0 10 3 Q13 0 16 3 C20 9 18 18 10 24Z" opacity=".85"/></svg>';
+  d.addEventListener('animationend', e => { if (e.target === d) d.remove(); });
+  kalpler.appendChild(d);
+}
+
+function kalpUcur(hizli) {
+  const kalpMi = Math.random() < KALP_ORANI;
+  const k = document.createElement('div');
+  k.className = kalpMi ? 'kalp' : 'isik';
+  const boyut = kalpMi ? 12 + Math.random() * 12 : 2 + Math.random() * 4;
+  k.style.left = (Math.random() * 100) + 'vw';
+  k.style.setProperty('--b', boyut + 'px');
+  k.style.setProperty('--t', (hizli ? 5 : 7 + Math.random() * 6) + 's');
+  if (kalpMi) {
+    k.innerHTML = '<svg viewBox="0 0 24 22"><path fill="' + KALP_RENK[Math.floor(Math.random() * KALP_RENK.length)] +
+      '" d="M12 21.6 10.3 20C4.4 14.6.5 11.1.5 6.8.5 3.3 3.2.6 6.7.6c2 0 3.9.9 5.3 2.4C13.4 1.5 15.3.6 17.3.6c3.5 0 6.2 2.7 6.2 6.2 0 4.3-3.9 7.8-9.8 13.2z"/></svg>';
+  } else {
+    k.innerHTML = '<span></span>';
+    k.style.setProperty('--c', ISIK_RENK[Math.floor(Math.random() * ISIK_RENK.length)]);
+  }
+  k.firstChild.style.animationDelay = (-Math.random() * 3) + 's';
+  k.addEventListener('animationend', e => { if (e.target === k) k.remove(); });
+  kalpler.appendChild(k);
+}
+
+evet.addEventListener('click', () => {
+  bildir('EVET dedi!!! 🎉' + (sayac ? ' (' + sayac + ' kez Hayır\'a bastıktan sonra)' : ' (hiç düşünmeden!)'), 'Ecrin EVET dedi 🩷', 'tada,heart', 5);
+  soru.hidden = true;
+  cevap.hidden = false;
+  clearInterval(kacZamanlayici);
+  cicekCiz();
+  sozleriGoster();
+  for (let i = 0; i < 10; i++) setTimeout(() => kalpUcur(true), 900 + i * 120);
+  clearInterval(kalpZamanlayici);
+  kalpZamanlayici = setInterval(() => kalpUcur(false), 220);
+  clearInterval(yaprakZamanlayici);
+  setTimeout(() => {
+    clearInterval(yaprakZamanlayici);
+    if (!cevap.hidden) yaprakZamanlayici = setInterval(yaprakDusur, 300);
+  }, 2200);
+});
+
+document.getElementById('tekrar').addEventListener('click', () => {
+  bildir('Tekrar butonuna bastı, baştan izliyor 😄', 'Tekrar açtı', 'repeat', 2);
+  clearInterval(kalpZamanlayici);
+  clearInterval(sozZamanlayici);
+  clearInterval(yaprakZamanlayici);
+  clearTimeout(sozBaslat);
+  kalpler.innerHTML = '';
+  cevap.hidden = true;
+  soru.hidden = false;
+  evet.classList.remove('tam');
+  evet.parentElement.classList.remove('serbest');
+  hayir.classList.remove('gizli');
+  sayac = 0;
+  guncelle();
+  kacmayaBasla();
+});
+
+tacCiz();
+guncelle();
+kacmayaBasla();
+addEventListener('resize', kac);
+bildir('Linke tıkladı, soruyu görüyor 👀', 'Sayfayı açtı', 'eyes', 3);
+</script>
+</body>
+</html>
